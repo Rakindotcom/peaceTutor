@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://peacetutor.com/sitemap.xml
+
+# Disallow admin pages
+Disallow: /admin
+Disallow: /admin-login

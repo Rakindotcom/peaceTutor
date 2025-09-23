@@ -1,34 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { db } from "../firebase";
-import { collection, addDoc } from "firebase/firestore";
-
-const FormField = ({ label, name, type = "text", value, onChange, placeholder, required, isTextarea = false }) => (
-  <div>
-    <label htmlFor={name} className="block font-semibold mb-1">{label}</label>
-    {isTextarea ? (
-      <textarea
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full border p-3 rounded-md h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder={placeholder}
-        required={required}
-      />
-    ) : (
-      <input
-        id={name}
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder={placeholder}
-        required={required}
-      />
-    )}
-  </div>
-);
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { VALIDATION_PATTERNS } from "../constants/formData";
+import { validateForm, getFirebaseErrorMessage } from "../utils/validation";
+import { sendContactConfirmation } from "../utils/emailNotifications";
+import { showToast, toastMessages } from "../utils/toast";
+import FormField from "../Components/UI/FormField";
+import LoadingSpinner from "../Components/UI/LoadingSpinner";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -36,43 +14,43 @@ const Contact = () => {
     email: "",
     message: "",
   });
-  const [modal, setModal] = useState({ isOpen: false, message: "", status: "" });
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const modalRef = useRef(null);
+
+  // Validation rules
+  const validationRules = {
+    name: { required: true, minLength: 2 },
+    email: { required: true, pattern: VALIDATION_PATTERNS.email },
+    message: { required: true, minLength: 10 }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const requiredFields = ["name", "email", "message"];
-    const isEmpty = requiredFields.some((field) => !formData[field].trim());
-    if (isEmpty) {
-      setModal({ isOpen: true, message: "Please fill in all required fields.", status: "error" });
-      setIsLoading(false);
-      return;
-    }
+    // Validate form
+    const { isValid, errors: validationErrors } = validateForm(formData, validationRules);
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setModal({ isOpen: true, message: "Invalid email format.", status: "error" });
-      setIsLoading(false);
-      return;
-    }
-
-    if (formData.message.trim().length < 10) {
-      setModal({ isOpen: true, message: "Message must be at least 10 characters long.", status: "error" });
+    if (!isValid) {
+      setErrors(validationErrors);
+      showToast.error(toastMessages.validationError);
       setIsLoading(false);
       return;
     }
 
     if (!db || typeof addDoc !== "function") {
       console.error("Firestore not available.");
-      setModal({ isOpen: true, message: "Database connection error.", status: "error" });
+      showToast.error("Database connection error. Please try again later.");
       setIsLoading(false);
       return;
     }
@@ -80,79 +58,49 @@ const Contact = () => {
     try {
       const submissionData = {
         ...Object.fromEntries(Object.entries(formData).map(([key, val]) => [key, val.trim()])),
-        timestamp: new Date().toISOString(),
+        timestamp: serverTimestamp(),
       };
-      await addDoc(collection(db, "contactMessages"), submissionData);
-      setModal({ isOpen: true, message: "Message Sent Successfully!", status: "success" });
 
+      await addDoc(collection(db, "contactMessages"), submissionData);
+
+      // Send confirmation email
+      await sendContactConfirmation(submissionData.email, submissionData.name);
+
+      showToast.success(toastMessages.contactSuccess);
+
+      // Reset form
       setFormData({ name: "", email: "", message: "" });
+      setErrors({});
+
     } catch (error) {
       console.error("Error adding document: ", error);
-      const errorMessages = {
-        "permission-denied": "You don't have permission to submit this form.",
-        "unavailable": "Database is currently unavailable. Please try again later.",
-        "deadline-exceeded": "Request timed out. Please check your connection.",
-      };
-      const errorMessage = errorMessages[error.code] || "Failed to send message. Please try again.";
-      setModal({ isOpen: true, message: errorMessage, status: "error" });
+      const errorMessage = getFirebaseErrorMessage(error.code);
+      showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const closeModal = () => {
-    setModal({ isOpen: false, message: "", status: "" });
-  };
-
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === "Escape") closeModal();
-    };
-
-    const handleFocusTrap = (e) => {
-      if (!modalRef.current || !modal.isOpen) return;
-      const focusableElements = modalRef.current.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      if (e.key === "Tab") {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    };
-
-    if (modal.isOpen) {
-      window.addEventListener("keydown", handleEscape);
-      window.addEventListener("keydown", handleFocusTrap);
-      document.querySelector(".modal-close-button")?.focus();
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
-    return () => {
-      window.removeEventListener("keydown", handleEscape);
-      window.removeEventListener("keydown", handleFocusTrap);
-      document.body.style.overflow = "auto";
-    };
-  }, [modal.isOpen]);
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto p-8 mt-10">
+        <LoadingSpinner size="lg" message="Sending your message..." />
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12 bg-white rounded-2xl shadow-lg mt-10">
-      <h1 className="text-3xl md:text-4xl font-bold text-center text-blue-700 mb-10">
-        Contact Peace Tutor
-      </h1>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 bg-white rounded-2xl shadow-lg mt-4 sm:mt-6 lg:mt-10">
+      <div className="text-center mb-8 sm:mb-10">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-700 mb-2">
+          Contact Peace Tutor Academy
+        </h1>
+        <p className="text-sm sm:text-base text-gray-600">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
         {/* Contact Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <FormField
             label="Name"
             name="name"
@@ -160,6 +108,7 @@ const Contact = () => {
             onChange={handleChange}
             placeholder="Your Name"
             required
+            error={errors.name}
           />
           <FormField
             label="Email"
@@ -169,6 +118,7 @@ const Contact = () => {
             onChange={handleChange}
             placeholder="your@email.com"
             required
+            error={errors.email}
           />
           <FormField
             label="Message"
@@ -177,12 +127,14 @@ const Contact = () => {
             onChange={handleChange}
             placeholder="Write your message here..."
             required
+            error={errors.message}
             isTextarea
           />
           <button
             type="submit"
             disabled={isLoading}
-            className={`bg-blue-600 text-white py-3 px-6 rounded-full font-semibold hover:bg-blue-700 transition ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`bg-blue-600 text-white py-3 px-6 rounded-full font-semibold hover:bg-blue-700 transition transform hover:scale-105 ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             {isLoading ? "Sending..." : "Send Message"}
           </button>
@@ -201,8 +153,14 @@ const Contact = () => {
 
           <div>
             <h2 className="text-xl font-semibold text-blue-700 mb-2">Phone</h2>
-            <p>📞 01938-679075</p>
-            <p>📞 01783-795850</p>
+            <p>📞 <a href="tel:+8801938679075" className="text-blue-600 hover:text-blue-800 hover:underline">01938-679075</a></p>
+            <p>📞 <a href="tel:+8801783795850" className="text-blue-600 hover:text-blue-800 hover:underline">01783-795850</a></p>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold text-blue-700 mb-2">Email</h2>
+            <p>📧 <a href="mailto:info@peacetutor.com" className="text-blue-600 hover:text-blue-800 hover:underline">info@peacetutor.com</a></p>
+            <p>📧 <a href="mailto:support@peacetutor.com" className="text-blue-600 hover:text-blue-800 hover:underline">support@peacetutor.com</a></p>
           </div>
 
           <div>
@@ -213,25 +171,7 @@ const Contact = () => {
         </div>
       </div>
 
-      {modal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" ref={modalRef} role="alert" aria-live="assertive">
-          <div className={`bg-white rounded-lg p-6 max-w-md w-full shadow-xl ${modal.status === "error" ? "border-2 border-red-500" : "border-2 border-green-500"}`}>
-            <h2 className={`text-xl font-bold mb-4 ${modal.status === "error" ? "text-red-600" : "text-green-600"}`}>
-              {modal.status === "success" ? "Success" : "Error"}
-            </h2>
-            <p className="text-gray-700 mb-6">{modal.message}</p>
-            <div className="flex justify-end">
-              <button
-                onClick={closeModal}
-                className="modal-close-button bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition"
-                aria-label="Close modal"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

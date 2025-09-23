@@ -5,12 +5,12 @@ import { getAuth } from "firebase/auth"; // ✅ Add this
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBpf8L-sqDsBTkM5PjpMubsS--DCla2ORo",
-  authDomain: "peace-tutor.firebaseapp.com",
-  projectId: "peace-tutor",
-  storageBucket: "peace-tutor.firebasestorage.app",
-  messagingSenderId: "516903037353",
-  appId: "1:516903037353:web:30a0a18b506a2cf0fdbcb8"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase

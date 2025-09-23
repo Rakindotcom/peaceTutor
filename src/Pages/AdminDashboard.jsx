@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { showToast, toastMessages } from "../utils/toast";
+import LoadingSpinner from "../Components/UI/LoadingSpinner";
+import EmailManagement from "../Components/EmailManagement";
 
 // Ensure Firestore rules allow reads for authenticated users and public writes:
 // rules_version = '2';
@@ -131,10 +134,11 @@ const AdminDashboard = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      showToast.success(toastMessages.logoutSuccess);
       navigate("/admin-login");
     } catch (err) {
       console.error("Error signing out:", err);
-      setError("Failed to sign out. Please try again.");
+      showToast.error("Failed to sign out. Please try again.");
     }
   };
 
@@ -148,12 +152,12 @@ const AdminDashboard = () => {
   };
 
   // Filter data based on search term
-  const filterData = (data, searchFields) =>
+  const filterData = useCallback((data, searchFields) =>
     data.filter((item) =>
       searchFields.some((field) =>
         String(item[field] || "").toLowerCase().includes(searchTerm)
       )
-    );
+    ), [searchTerm]);
 
   const filteredHireRequests = useMemo(
     () =>
@@ -168,7 +172,7 @@ const AdminDashboard = () => {
         "subjects",
         "address",
       ]),
-    [hireRequests, searchTerm]
+    [hireRequests, filterData]
   );
   const filteredTutorApplications = useMemo(
     () =>
@@ -186,11 +190,11 @@ const AdminDashboard = () => {
         "preferredSubjects",
         "address",
       ]),
-    [tutorApplications, searchTerm]
+    [tutorApplications, filterData]
   );
   const filteredContactMessages = useMemo(
     () => filterData(contactMessages, ["name", "email", "message"]),
-    [contactMessages, searchTerm]
+    [contactMessages, filterData]
   );
 
   const openModal = (data, title) => {
@@ -206,7 +210,7 @@ const AdminDashboard = () => {
   };
 
   const handleTabKeyDown = (e) => {
-    const tabs = ["hire", "apply", "contact"];
+    const tabs = ["hire", "apply", "contact", "emails"];
     const currentIndex = tabs.indexOf(activeTab);
     if (e.key === "ArrowLeft" && currentIndex > 0) {
       setActiveTab(tabs[currentIndex - 1]);
@@ -278,14 +282,8 @@ const AdminDashboard = () => {
 
   if (authLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-12 bg-white rounded-2xl shadow-lg mt-10 text-center">
-        <div
-          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"
-          role="status"
-        >
-          <span className="sr-only">Checking authentication...</span>
-        </div>
-        <p className="mt-2 text-gray-600">Verifying access...</p>
+      <div className="max-w-7xl mx-auto px-6 py-12 bg-white rounded-2xl shadow-lg mt-10">
+        <LoadingSpinner size="lg" message="Verifying access..." />
       </div>
     );
   }
@@ -333,17 +331,17 @@ const AdminDashboard = () => {
             { id: "hire", label: "Hire Requests" },
             { id: "apply", label: "Tutor Applications" },
             { id: "contact", label: "Contact Messages" },
+            { id: "emails", label: "Email Management" },
           ].map((tab) => (
             <button
               key={tab.id}
               role="tab"
               aria-selected={activeTab === tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`px-4 py-2 font-semibold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                activeTab === tab.id
-                  ? "border-b-2 border-blue-600 text-blue-700"
-                  : "text-gray-600 hover:text-blue-700"
-              }`}
+              className={`px-4 py-2 font-semibold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 ${activeTab === tab.id
+                ? "border-b-2 border-blue-600 text-blue-700"
+                : "text-gray-600 hover:text-blue-700"
+                }`}
             >
               {tab.label}
             </button>
@@ -352,15 +350,7 @@ const AdminDashboard = () => {
       </div>
 
       {isLoading ? (
-        <div className="text-center">
-          <div
-            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"
-            role="status"
-          >
-            <span className="sr-only">Loading...</span>
-          </div>
-          <p className="mt-2 text-gray-600">Loading data...</p>
-        </div>
+        <LoadingSpinner size="lg" message="Loading dashboard data..." />
       ) : (
         <div role="tabpanel" aria-labelledby={`tab-${activeTab}`}>
           {activeTab === "hire" &&
@@ -384,6 +374,7 @@ const AdminDashboard = () => {
               ["name", "email", "message", "timestamp"],
               "Contact Message"
             )}
+          {activeTab === "emails" && <EmailManagement />}
         </div>
       )}
 

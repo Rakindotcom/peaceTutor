@@ -1,70 +1,122 @@
 import React, { useState } from "react";
-  import { auth } from "../firebase";
-  import { signInWithEmailAndPassword } from "firebase/auth";
-  import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { VALIDATION_PATTERNS } from "../constants/formData";
+import { validateForm, getFirebaseErrorMessage } from "../utils/validation";
+import { showToast, toastMessages } from "../utils/toast";
+import FormField from "../Components/UI/FormField";
+import LoadingSpinner from "../Components/UI/LoadingSpinner";
 
-  const AdminLogin = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
+const AdminLogin = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  const [errors, setErrors] = useState({});
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError("");
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        navigate("/admin");
-      } catch (err) {
-        console.error("Login error:", err);
-        setError(err.code === "auth/wrong-password" || err.code === "auth/user-not-found"
-          ? "Invalid email or password."
-          : "Failed to log in. Please try again.");
-      }
-    };
-
-    return (
-      <div className="max-w-md mx-auto px-6 py-12 bg-white rounded-2xl shadow-lg mt-10">
-        <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">Admin Login</h1>
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg" role="alert">
-            {error}
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block font-semibold mb-1">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="your@email.com"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block font-semibold mb-1">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Password"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-full font-semibold hover:bg-blue-700 transition"
-          >
-            Log In
-          </button>
-        </form>
-      </div>
-    );
+  // Validation rules
+  const validationRules = {
+    email: { required: true, pattern: VALIDATION_PATTERNS.email },
+    password: { required: true, minLength: 6 }
   };
 
-  export default AdminLogin;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Clear errors when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
+    if (error) {
+      setError("");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    // Validate form
+    const { isValid, errors: validationErrors } = validateForm(formData, validationRules);
+
+    if (!isValid) {
+      setErrors(validationErrors);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      showToast.success(toastMessages.loginSuccess);
+      // Check if user came from post-tuition route, otherwise go to admin
+      const from = new URLSearchParams(window.location.search).get('from');
+      navigate(from === 'post-tuition' ? '/post-tuition' : '/admin');
+    } catch (err) {
+      console.error("Login error:", err);
+      const errorMessage = getFirebaseErrorMessage(err.code);
+      showToast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-md mx-auto px-6 py-12 mt-10">
+        <LoadingSpinner size="lg" message="Signing in..." />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-md mx-auto px-6 py-12 bg-white rounded-2xl shadow-lg mt-10">
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold text-blue-700 mb-2">Login</h1>
+        <p className="text-gray-600">Sign in to access your account</p>
+      </div>
+
+
+
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <FormField
+          label="Email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="admin@peacetutor.com"
+          required
+          error={errors.email}
+        />
+
+        <FormField
+          label="Password"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Enter your password"
+          required
+          error={errors.password}
+        />
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`w-full bg-blue-600 text-white py-3 rounded-full font-semibold hover:bg-blue-700 transition transform hover:scale-105 ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+        >
+          {isLoading ? "Signing In..." : "Sign In"}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default AdminLogin;

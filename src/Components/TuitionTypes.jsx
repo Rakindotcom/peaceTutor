@@ -20,8 +20,8 @@ function TuitionTypes() {
 
           {/* Card 1 */}
           <div className="flex flex-col items-center text-center bg-gradient-to-br from-blue-100 to-white p-8 rounded-3xl shadow-md border border-black hover:scale-105 hover:shadow-lg transition duration-300">
-            <div className="text-5xl mb-4">
-              <FaHome /> {/* Home Tutoring Icon */}
+            <div className="text-5xl mb-4" aria-label="Home tutoring icon">
+              <FaHome />
             </div>
             <h2 className="text-xl font-bold text-blue-800 mb-2">Home Tutoring</h2>
             <p className="text-gray-600 text-sm text-justify">
@@ -31,8 +31,8 @@ function TuitionTypes() {
 
           {/* Card 2 */}
           <div className="flex flex-col items-center text-center bg-gradient-to-br from-blue-100 to-white p-8 rounded-3xl shadow-md border border-black hover:scale-105 hover:shadow-lg transition duration-300">
-            <div className="text-5xl mb-4">
-              <FaUsers /> {/* Group Tutoring Icon */}
+            <div className="text-5xl mb-4" aria-label="Group tutoring icon">
+              <FaUsers />
             </div>
             <h2 className="text-xl font-bold text-blue-800 mb-2">Group Tutoring</h2>
             <p className="text-gray-600 text-sm text-justify">
@@ -42,8 +42,8 @@ function TuitionTypes() {
 
           {/* Card 3 */}
           <div className="flex flex-col items-center text-center bg-gradient-to-br from-blue-100 to-white p-8 rounded-3xl shadow-md border border-black hover:scale-105 hover:shadow-lg transition duration-300">
-            <div className="text-5xl mb-4">
-              <FaLaptop /> {/* Online Tutoring Icon */}
+            <div className="text-5xl mb-4" aria-label="Online tutoring icon">
+              <FaLaptop />
             </div>
             <h2 className="text-xl font-bold text-blue-800 mb-2">Online Tutoring</h2>
             <p className="text-gray-600 text-sm text-justify">
@@ -53,8 +53,8 @@ function TuitionTypes() {
 
           {/* Card 4 */}
           <div className="flex flex-col items-center text-center bg-gradient-to-br from-blue-100 to-white p-8 rounded-3xl shadow-md border border-black hover:scale-105 hover:shadow-lg transition duration-300">
-            <div className="text-5xl mb-4">
-              <FaBox /> {/* Package Tutoring Icon */}
+            <div className="text-5xl mb-4" aria-label="Package tutoring icon">
+              <FaBox />
             </div>
             <h2 className="text-xl font-bold text-blue-800 mb-2">Package Tutoring</h2>
             <p className="text-gray-600 text-sm text-justify">

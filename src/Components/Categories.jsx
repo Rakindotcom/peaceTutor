@@ -8,13 +8,20 @@ const Categories = () => {
         dots: true,
         infinite: true,
         speed: 1000,
-        slidesToShow: 3,
+        slidesToShow: 4,
         slidesToScroll: 1,
         autoplay: true,
-        autoplaySpeed: 1000,
+        autoplaySpeed: 2000,
         centerMode: true,
         focusOnSelect: true,
         responsive: [
+            {
+                breakpoint: 1280,
+                settings: {
+                    slidesToShow: 3,
+                    centerMode: true,
+                },
+            },
             {
                 breakpoint: 1024,
                 settings: {
@@ -23,7 +30,7 @@ const Categories = () => {
                 },
             },
             {
-                breakpoint: 600,
+                breakpoint: 640,
                 settings: {
                     slidesToShow: 1,
                     centerMode: true,
@@ -49,28 +56,31 @@ const Categories = () => {
 
 
     return (
-        <section className="w-full py-20">
-            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-16">
+        <section className="w-full py-12 sm:py-16 lg:py-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                <div className="text-center mb-16">
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-black">
+                <div className="text-center mb-12 sm:mb-16">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black">
                         Serving Categories
                     </h1>
-                    <p className="mt-4 text-base font-medium text-blue-800 max-w-2xl mx-auto">
+                    <p className="mt-4 text-sm sm:text-base font-medium text-blue-800 max-w-2xl mx-auto">
                         Explore a wide range of categories to hire tutors for your needs.
                     </p>
                 </div>
 
                 <Slider {...settings}>
                     {categories.map((category, index) => (
-                        <div key={index} className="flex justify-center px-4">
-                            <div className="bg-gradient-to-br from-blue-100 to-white p-8 rounded-lg border-2 border-black transform transition-all hover:bg-blue-200 hover:text-white hover:shadow-lg">
-                                <div className="flex justify-center items-center mb-4">
-                                    <div className="bg-gradient-to-br from-purple-700 to-blue-500 p-4 rounded-full text-white text-3xl">
+                        <div key={index} className="flex justify-center px-2 sm:px-4">
+                            <div className="bg-gradient-to-br from-blue-100 to-white p-4 sm:p-6 lg:p-8 rounded-lg border-2 border-black transform transition-all hover:bg-blue-200 hover:text-white hover:shadow-lg w-full max-w-xs">
+                                <div className="flex justify-center items-center mb-3 sm:mb-4">
+                                    <div
+                                        className="bg-gradient-to-br from-purple-700 to-blue-500 p-3 sm:p-4 rounded-full text-white text-2xl sm:text-3xl"
+                                        aria-label={`${category.name} category icon`}
+                                    >
                                         {category.icon}
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-semibold text-center text-blue-800">{category.name}</h3>
+                                <h3 className="text-lg sm:text-xl font-semibold text-center text-blue-800">{category.name}</h3>
                             </div>
                         </div>
                     ))}
