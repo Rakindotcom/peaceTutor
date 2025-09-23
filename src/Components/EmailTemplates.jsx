@@ -25,10 +25,10 @@ const EmailTemplates = () => {
 
   const templates = {
     newsletter: {
-      subject: 'Peace Tutor Academy Newsletter - Latest Updates',
+      subject: 'Peace Tutor BD Newsletter - Latest Updates',
       message: `Dear Subscriber,
 
-Thank you for being part of the Peace Tutor Academy community! Here are our latest updates:
+Thank you for being part of the Peace Tutor BD community! Here are our latest updates:
 
 📚 New Subjects Added: We now offer tutoring in Computer Science and Digital Marketing
 🎯 Success Stories: Our students achieved 95% success rate in recent SSC exams
@@ -36,16 +36,16 @@ Thank you for being part of the Peace Tutor Academy community! Here are our late
 🎉 Special Offer: 20% discount on group tutoring sessions this month
 
 Best regards,
-Peace Tutor Academy Team
+Peace Tutor BD Team
 
 ---
 If you no longer wish to receive these emails, you can unsubscribe at any time.`
     },
     welcome: {
-      subject: 'Welcome to Peace Tutor Academy!',
+      subject: 'Welcome to Peace Tutor BD!',
       message: `Dear [Name],
 
-Welcome to Peace Tutor Academy! We're thrilled to have you join our community of learners and educators.
+Welcome to Peace Tutor BD! We're thrilled to have you join our community of learners and educators.
 
 What's next?
 ✅ Complete your profile
@@ -56,7 +56,7 @@ What's next?
 Our team is here to help you every step of the way. If you have any questions, don't hesitate to contact us.
 
 Best regards,
-Peace Tutor Academy Team`
+Peace Tutor BD Team`
     },
     tutor_match: {
       subject: 'Great News! We Found Perfect Tutors for You',
@@ -81,13 +81,13 @@ Next steps:
 4. Begin your learning journey
 
 Best regards,
-Peace Tutor Academy Team`
+Peace Tutor BD Team`
     },
     application_received: {
-      subject: 'Application Received - Peace Tutor Academy',
+      subject: 'Application Received - Peace Tutor BD',
       message: `Dear [Tutor Name],
 
-Thank you for applying to become a tutor with Peace Tutor Academy!
+Thank you for applying to become a tutor with Peace Tutor BD!
 
 We have received your application and our team is currently reviewing it. Here's what happens next:
 
@@ -102,7 +102,7 @@ We'll contact you within 48 hours with an update on your application status.
 Thank you for your interest in joining our team of educators!
 
 Best regards,
-Peace Tutor Academy Team`
+Peace Tutor BD Team`
     }
   };
 

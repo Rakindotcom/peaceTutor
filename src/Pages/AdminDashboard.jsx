@@ -22,6 +22,7 @@ const AdminDashboard = () => {
   const [hireRequests, setHireRequests] = useState([]);
   const [tutorApplications, setTutorApplications] = useState([]);
   const [contactMessages, setContactMessages] = useState([]);
+  const [tuitionApplications, setTuitionApplications] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [modal, setModal] = useState({ isOpen: false, data: null, title: "" });
   const [isLoading, setIsLoading] = useState(true);
@@ -103,6 +104,38 @@ const AdminDashboard = () => {
       },
     ];
 
+    // Fetch tuition applications separately since they're nested in tuitions
+    const tuitionsQuery = query(collection(db, "tuitions"), orderBy("createdAt", "desc"));
+    const tuitionsUnsubscribe = onSnapshot(
+      tuitionsQuery,
+      (snapshot) => {
+        const applications = [];
+        snapshot.docs.forEach((doc) => {
+          const tuitionData = doc.data();
+          if (tuitionData.applications && tuitionData.applications.length > 0) {
+            tuitionData.applications.forEach((app, index) => {
+              applications.push({
+                id: `${doc.id}_${index}`,
+                tuitionId: doc.id,
+                tuitionTitle: tuitionData.title,
+                tuitionSubject: tuitionData.subject,
+                ...app,
+                appliedAt: app.appliedAt || new Date()
+              });
+            });
+          }
+        });
+        setTuitionApplications(applications);
+        loadedCollections++;
+        if (loadedCollections === totalCollections + 1) setIsLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching tuition applications: ", err);
+        if (!error) setError("Failed to load tuition applications.");
+        setIsLoading(false);
+      }
+    );
+
     let loadedCollections = 0;
     const totalCollections = collections.length;
 
@@ -127,7 +160,10 @@ const AdminDashboard = () => {
       );
     });
 
-    return () => unsubscribes.forEach((unsub) => unsub());
+    return () => {
+      unsubscribes.forEach((unsub) => unsub());
+      tuitionsUnsubscribe();
+    };
   }, [authLoading, error]);
 
   // Logout
@@ -196,6 +232,19 @@ const AdminDashboard = () => {
     () => filterData(contactMessages, ["name", "email", "message"]),
     [contactMessages, filterData]
   );
+  const filteredTuitionApplications = useMemo(
+    () =>
+      filterData(tuitionApplications, [
+        "name",
+        "email",
+        "phone",
+        "tuitionTitle",
+        "tuitionSubject",
+        "experience",
+        "whyChooseYou",
+      ]),
+    [tuitionApplications, filterData]
+  );
 
   const openModal = (data, title) => {
     setModal({ isOpen: true, data, title });
@@ -210,7 +259,7 @@ const AdminDashboard = () => {
   };
 
   const handleTabKeyDown = (e) => {
-    const tabs = ["hire", "apply", "contact", "emails"];
+    const tabs = ["hire", "apply", "tuition", "contact", "emails"];
     const currentIndex = tabs.indexOf(activeTab);
     if (e.key === "ArrowLeft" && currentIndex > 0) {
       setActiveTab(tabs[currentIndex - 1]);
@@ -330,6 +379,7 @@ const AdminDashboard = () => {
           {[
             { id: "hire", label: "Hire Requests" },
             { id: "apply", label: "Tutor Applications" },
+            { id: "tuition", label: "Tuition Applications" },
             { id: "contact", label: "Contact Messages" },
             { id: "emails", label: "Email Management" },
           ].map((tab) => (
@@ -366,6 +416,13 @@ const AdminDashboard = () => {
               "Tutor Applications",
               ["name", "email", "phone", "university", "experience", "timestamp"],
               "Tutor Application"
+            )}
+          {activeTab === "tuition" &&
+            renderTable(
+              filteredTuitionApplications,
+              "Tuition Applications",
+              ["name", "email", "phone", "experience", "whyChooseYou", "appliedAt"],
+              "Tuition Application"
             )}
           {activeTab === "contact" &&
             renderTable(

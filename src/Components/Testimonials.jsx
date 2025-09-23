@@ -11,7 +11,7 @@ const Testimonials = () => {
       location: "Dhaka",
       image: "👩‍🎓",
       rating: 5,
-      text: "Peace Tutor Academy helped me find the perfect math tutor. My grades improved from C to A+ in just 3 months! The tutor was very patient and explained everything clearly.",
+      text: "Peace Tutor BD helped me find the perfect math tutor. My grades improved from C to A+ in just 3 months! The tutor was very patient and explained everything clearly.",
       subject: "Mathematics"
     },
     {
@@ -29,7 +29,7 @@ const Testimonials = () => {
       location: "Sylhet",
       image: "👩‍💼",
       rating: 5,
-      text: "As a working mother, finding a reliable tutor for my daughter was challenging. Peace Tutor Academy made it so easy! The tutor is punctual, professional, and my daughter loves learning now.",
+      text: "As a working mother, finding a reliable tutor for my daughter was challenging. Peace Tutor BD made it so easy! The tutor is punctual, professional, and my daughter loves learning now.",
       subject: "English & Bangla"
     },
     {
@@ -47,7 +47,7 @@ const Testimonials = () => {
       location: "Dhaka",
       image: "👨‍🏫",
       rating: 5,
-      text: "Being a tutor with Peace Tutor Academy has been wonderful. They provide great support and help me connect with serious students. The platform is user-friendly and professional.",
+      text: "Being a tutor with Peace Tutor BD has been wonderful. They provide great support and help me connect with serious students. The platform is user-friendly and professional.",
       subject: "Mathematics Tutor"
     }
   ];
@@ -69,7 +69,7 @@ const Testimonials = () => {
             What Our Community Says
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Don't just take our word for it. Here's what students, parents, and tutors say about their experience with Peace Tutor Academy.
+            Don't just take our word for it. Here's what students, parents, and tutors say about their experience with Peace Tutor BD.
           </p>
         </div>
 
@@ -142,8 +142,8 @@ const Testimonials = () => {
               key={index}
               onClick={() => setCurrentTestimonial(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentTestimonial
-                  ? 'bg-blue-600 w-8'
-                  : 'bg-blue-200 hover:bg-blue-300'
+                ? 'bg-blue-600 w-8'
+                : 'bg-blue-200 hover:bg-blue-300'
                 }`}
               aria-label={`Go to testimonial ${index + 1}`}
             />

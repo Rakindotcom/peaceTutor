@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 const GetTuition = () => {
   const [tuitions, setTuitions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hasShownError, setHasShownError] = useState(false);
+  const hasShownErrorRef = useRef(false);
   const [filters, setFilters] = useState({
     subject: '',
     level: '',
@@ -32,10 +32,11 @@ const GetTuition = () => {
         ...doc.data()
       }));
       setTuitions(tuitionData);
+      hasShownErrorRef.current = false; // Reset error state on success
     } catch (error) {
-      if (!hasShownError) {
+      if (!hasShownErrorRef.current) {
         toast.error('Error fetching tuitions: ' + error.message);
-        setHasShownError(true);
+        hasShownErrorRef.current = true;
       }
     } finally {
       setLoading(false);

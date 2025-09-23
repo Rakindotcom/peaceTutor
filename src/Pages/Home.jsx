@@ -32,7 +32,7 @@ const Home = () => {
             Transform Your Academic Journey Today
           </h2>
           <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
-            Join thousands of successful students who have achieved their academic goals with Peace Tutor Academy.
+            Join thousands of successful students who have achieved their academic goals with Peace Tutor BD.
             Your perfect tutor is just one click away!
           </p>
 

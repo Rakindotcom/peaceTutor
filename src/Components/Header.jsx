@@ -21,11 +21,11 @@ function Header() {
           <Link to="/" className="flex items-center gap-2 group py-2">
             <img
               src="/logo.png"
-              alt="Peace Tutor Academy Logo"
+              alt="Peace Tutor BD Logo"
               className="w-8 h-8 sm:w-10 sm:h-10 group-hover:scale-110 transition-transform"
             />
             <span className="text-white text-lg sm:text-xl md:text-2xl font-bold tracking-wide group-hover:text-blue-200 transition-colors hidden sm:block">
-              Peace Tutor Academy
+              Peace Tutor BD
             </span>
             <span className="text-white text-sm font-bold tracking-wide group-hover:text-blue-200 transition-colors sm:hidden">
               Peace Tutor

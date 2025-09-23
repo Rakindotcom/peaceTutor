@@ -90,7 +90,7 @@ const AdminLogin = () => {
           type="email"
           value={formData.email}
           onChange={handleChange}
-          placeholder="admin@peacetutor.com"
+          placeholder="admin@peacetutorbd.com"
           required
           error={errors.email}
         />

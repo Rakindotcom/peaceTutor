@@ -47,7 +47,7 @@ const Features = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-            Why Choose Peace Tutor Academy?
+            Why Choose Peace Tutor BD?
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             We're committed to providing the best tutoring experience in Bangladesh with our comprehensive platform and dedicated support.

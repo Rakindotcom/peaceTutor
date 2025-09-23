@@ -1,4 +1,4 @@
-# Peace Tutor Academy
+# Peace Tutor BD
 
 A modern web application connecting students with qualified tutors in Bangladesh. Built with React, Vite, and Firebase.
 
@@ -219,7 +219,7 @@ For support, email support@peacetutor.com or create an issue in this repository.
 
 ## 📞 Contact Information
 
-**Peace Tutor Academy**
+**Peace Tutor BD**
 - Address: House No#83, Road No#23, Gulshan-1, Dhaka, Bangladesh 1212
 - Phone: 01938-679075, 01783-795850
 - Business Hours: Saturday – Thursday: 9:00 AM – 8:00 PM

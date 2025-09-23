@@ -1,7 +1,7 @@
-# Mobile Responsiveness & UI Improvements - Peace Tutor Academy
+# Mobile Responsiveness & UI Improvements - Peace Tutor BD
 
 ## Overview
-The Peace Tutor Academy website has been completely updated to be mobile-first and fully responsive across all devices. All modal popups have been replaced with React Toastify for better user experience.
+The Peace Tutor BD website has been completely updated to be mobile-first and fully responsive across all devices. All modal popups have been replaced with React Toastify for better user experience.
 
 ## 🚀 Key Improvements Made
 

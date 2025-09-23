@@ -12,6 +12,7 @@ import ApplyTuition from './Pages/ApplyTuition'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
 import ScrollToTop from './Components/ScrollToTop'
+import WhatsAppFloat from './Components/WhatsAppFloat'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import AdminDashboard from './Pages/AdminDashboard'
@@ -40,6 +41,7 @@ const App = () => {
       </main>
       <Footer />
       <ScrollToTop />
+      <WhatsAppFloat />
       <ToastContainer
         position="top-right"
         autoClose={5000}

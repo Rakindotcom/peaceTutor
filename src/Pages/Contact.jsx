@@ -93,7 +93,7 @@ const Contact = () => {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 bg-white rounded-2xl shadow-lg mt-4 sm:mt-6 lg:mt-10">
       <div className="text-center mb-8 sm:mb-10">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-700 mb-2">
-          Contact Peace Tutor Academy
+          Contact Peace Tutor BD
         </h1>
         <p className="text-sm sm:text-base text-gray-600">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
       </div>
@@ -159,8 +159,8 @@ const Contact = () => {
 
           <div>
             <h2 className="text-xl font-semibold text-blue-700 mb-2">Email</h2>
-            <p>📧 <a href="mailto:info@peacetutor.com" className="text-blue-600 hover:text-blue-800 hover:underline">info@peacetutor.com</a></p>
-            <p>📧 <a href="mailto:support@peacetutor.com" className="text-blue-600 hover:text-blue-800 hover:underline">support@peacetutor.com</a></p>
+            <p>📧 <a href="mailto:info@peacetutorbd.com" className="text-blue-600 hover:text-blue-800 hover:underline">info@peacetutorbd.com</a></p>
+            <p>📧 <a href="mailto:support@peacetutorbd.com" className="text-blue-600 hover:text-blue-800 hover:underline">support@peacetutorbd.com</a></p>
           </div>
 
           <div>

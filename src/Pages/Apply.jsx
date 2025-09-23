@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { GENDERS, ACADEMIC_YEARS, DISTRICTS, AREAS, VALIDATION_PATTERNS } from "../constants/formData";
+import { GENDERS, ACADEMIC_YEARS, DISTRICTS, getAreas, VALIDATION_PATTERNS } from "../constants/formData";
 import { validateForm, getFirebaseErrorMessage } from "../utils/validation";
 import { sendTutorApplicationConfirmation } from "../utils/emailNotifications";
 import { showToast, toastMessages } from "../utils/toast";
@@ -58,13 +58,20 @@ const Apply = () => {
     DISTRICTS.map((d, i) => <option key={i} value={d}>{d}</option>), []
   );
 
-  const areaOptions = useMemo(() =>
-    AREAS.map((a, i) => <option key={i} value={a}>{a}</option>), []
-  );
+  const areaOptions = useMemo(() => {
+    const areas = getAreas(formData.district);
+    return areas.map((a, i) => <option key={i} value={a}>{a}</option>);
+  }, [formData.district]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // If district changes, reset area
+    if (name === 'district') {
+      setFormData((prev) => ({ ...prev, [name]: value, area: '' }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -203,6 +210,8 @@ const Apply = () => {
           options={areaOptions}
           required
           error={errors.area}
+          disabled={!formData.district}
+          placeholder={!formData.district ? "Select district first" : "Select area"}
         />
 
         <FormField

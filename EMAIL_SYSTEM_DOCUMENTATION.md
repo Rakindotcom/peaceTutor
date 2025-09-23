@@ -1,7 +1,7 @@
-# Email System Documentation - Peace Tutor Academy
+# Email System Documentation - Peace Tutor BD
 
 ## Overview
-The Peace Tutor Academy website now includes a comprehensive email management system integrated with Firestore database. This system handles newsletter subscriptions, contact form confirmations, and automated email notifications.
+The Peace Tutor BD website now includes a comprehensive email management system integrated with Firestore database. This system handles newsletter subscriptions, contact form confirmations, and automated email notifications.
 
 ## Features Implemented
 
@@ -202,7 +202,7 @@ import { sendBulkNewsletter } from '../utils/emailNotifications';
 
 // Send newsletter to all subscribers
 await sendBulkNewsletter(
-  'Monthly Updates - Peace Tutor Academy',
+  'Monthly Updates - Peace Tutor BD',
   'Here are our latest updates...'
 );
 ```

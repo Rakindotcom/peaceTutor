@@ -6,19 +6,19 @@ export const sendEmailNotification = async (type, recipientEmail, data = {}) => 
   try {
     const emailTemplates = {
       tutor_application_received: {
-        subject: 'Application Received - Peace Tutor Academy',
+        subject: 'Application Received - Peace Tutor BD',
         template: 'application_received'
       },
       hire_request_received: {
-        subject: 'Tutor Request Received - Peace Tutor Academy',
+        subject: 'Tutor Request Received - Peace Tutor BD',
         template: 'hire_request_received'
       },
       contact_message_received: {
-        subject: 'Thank you for contacting us - Peace Tutor Academy',
+        subject: 'Thank you for contacting us - Peace Tutor BD',
         template: 'contact_received'
       },
       newsletter_welcome: {
-        subject: 'Welcome to Peace Tutor Academy Newsletter!',
+        subject: 'Welcome to Peace Tutor BD Newsletter!',
         template: 'newsletter_welcome'
       }
     };

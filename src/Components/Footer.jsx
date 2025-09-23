@@ -15,11 +15,11 @@ function Footer() {
               <div className="flex items-center gap-3 mb-4">
                 <img
                   src="/logo.png"
-                  alt="Peace Tutor Academy Logo"
+                  alt="Peace Tutor BD Logo"
                   className="w-10 h-10"
                 />
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Peace Tutor Academy
+                  Peace Tutor BD
                 </h2>
               </div>
               <p className="text-gray-300 text-sm leading-relaxed">
@@ -151,7 +151,7 @@ function Footer() {
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-gray-400 text-sm text-center md:text-left">
-              <p>&copy; {new Date().getFullYear()} Peace Tutor Academy. All rights reserved.</p>
+              <p>&copy; {new Date().getFullYear()} Peace Tutor BD. All rights reserved.</p>
             </div>
 
             <div className="text-gray-400 text-sm text-center md:text-right">

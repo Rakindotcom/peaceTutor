@@ -42,7 +42,7 @@ const HowItWorks = () => {
             How It Works
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Getting started with Peace Tutor Academy is simple. Follow these easy steps to find your perfect tutor and start improving your grades today.
+            Getting started with Peace Tutor BD is simple. Follow these easy steps to find your perfect tutor and start improving your grades today.
           </p>
         </div>
 
