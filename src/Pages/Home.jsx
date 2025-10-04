@@ -4,6 +4,7 @@ import Features from '../Components/Features';
 import TuitionTypes from '../Components/TuitionTypes';
 import Categories from '../Components/Categories';
 import HowItWorks from '../Components/HowItWorks';
+import Statistics from '../Components/Statistics';
 import Testimonials from '../Components/Testimonials';
 import FAQ from '../Components/FAQ';
 
@@ -15,6 +16,7 @@ const Home = () => {
       <TuitionTypes />
       <Categories />
       <HowItWorks />
+      <Statistics />
       <Testimonials />
       <FAQ />
 
@@ -48,7 +50,7 @@ const Home = () => {
             </Link>
 
             <Link
-              to="/apply"
+              to="/login"
               className="group bg-transparent text-white font-bold px-10 py-4 rounded-full text-lg border-2 border-white hover:bg-white hover:text-blue-900 transition-all duration-300 flex items-center gap-3"
             >
               <span>Teach & Earn</span>

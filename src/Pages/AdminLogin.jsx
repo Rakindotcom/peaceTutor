@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../firebase";
+import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { VALIDATION_PATTERNS } from "../constants/formData";
 import { validateForm, getFirebaseErrorMessage } from "../utils/validation";
@@ -17,6 +18,25 @@ const AdminLogin = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleForgotPassword = async () => {
+    if (!formData.email) {
+      showToast.error("Please enter your email address first");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, formData.email);
+      showToast.success("Password reset email sent! Check your inbox.");
+    } catch (error) {
+      console.error("Password reset error:", error);
+      const errorMessage = getFirebaseErrorMessage(error.code);
+      showToast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Validation rules
   const validationRules = {
@@ -52,7 +72,35 @@ const AdminLogin = () => {
     }
 
     try {
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
+
+      // Check if user has admin role in Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+
+        if (userData.role !== "admin") {
+          showToast.error("Access denied. This login is for administrators only.");
+          await signOut(auth); // Sign out the user
+          setIsLoading(false);
+          return;
+        }
+
+        if (!userData.isActive) {
+          showToast.error("Your admin account has been deactivated. Please contact support.");
+          await signOut(auth);
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        showToast.error("Admin account not found. Please contact support.");
+        await signOut(auth);
+        setIsLoading(false);
+        return;
+      }
+
       showToast.success(toastMessages.loginSuccess);
       // Check if user came from post-tuition route, otherwise go to admin
       const from = new URLSearchParams(window.location.search).get('from');
@@ -114,6 +162,18 @@ const AdminLogin = () => {
         >
           {isLoading ? "Signing In..." : "Sign In"}
         </button>
+
+        {/* Forgot Password */}
+        <div className="text-center mt-4">
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            disabled={isLoading}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Forgot Password?
+          </button>
+        </div>
       </form>
     </div>
   );

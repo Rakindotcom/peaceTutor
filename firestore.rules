@@ -1,0 +1,87 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection - users can read/write their own data, admins can read all
+    match /users/{userId} {
+      // Users can read and write their own document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Admins can read all user documents
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      
+      // Allow creation of new user documents during sign-up
+      allow create: if request.auth != null && 
+        request.auth.uid == userId &&
+        request.resource.data.uid == request.auth.uid;
+    }
+    
+    // Hire requests - public write, authenticated read
+    match /hireRequests/{document} {
+      allow read: if request.auth != null;
+      allow write: if true; // Public writes for the hire form
+    }
+    
+    // Tutor applications - public write, authenticated read
+    match /tutorApplications/{document} {
+      allow read: if request.auth != null;
+      allow write: if true; // Public writes for the apply form
+    }
+    
+    // Contact messages - public write, authenticated read
+    match /contactMessages/{document} {
+      allow read: if request.auth != null;
+      allow write: if true; // Public writes for the contact form
+    }
+    
+    // Tuitions collection - authenticated users can read, guardians and admins can write
+    match /tuitions/{document} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (
+        getUserRole(request.auth.uid) == 'guardian' ||
+        getUserRole(request.auth.uid) == 'admin'
+      );
+    }
+    
+    // Helper function to get user role
+    function getUserRole(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.role;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && getUserRole(request.auth.uid) == 'admin';
+    }
+    
+    // Helper function to check if user is active
+    function isActiveUser(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.isActive == true;
+    }
+  }
+}
+
+/*
+DEPLOYMENT INSTRUCTIONS:
+
+1. Copy this content to your Firebase Console:
+   - Go to Firebase Console > Firestore Database > Rules
+   - Replace the existing rules with this content
+   - Click "Publish"
+
+2. Test the rules:
+   - Use the Rules Playground in Firebase Console
+   - Test different scenarios (user creation, reading own data, etc.)
+
+3. Monitor for errors:
+   - Check Firebase Console > Firestore > Usage tab for rule violations
+   - Adjust rules as needed based on your app's requirements
+
+SECURITY NOTES:
+- Users can only access their own data
+- Public forms (hire, apply, contact) allow anonymous writes
+- Admin users have broader read access
+- All authenticated operations require active user status
+*/

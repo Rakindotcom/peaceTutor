@@ -25,11 +25,11 @@ function Hero() {
                     {/* Stats */}
                     <div className="flex flex-wrap gap-3 sm:gap-6 justify-center lg:justify-start text-center">
                         <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 sm:p-4 shadow-md flex-1 min-w-[100px] sm:flex-none">
-                            <div className="text-xl sm:text-2xl font-bold text-blue-900">500+</div>
+                            <div className="text-xl sm:text-2xl font-bold text-blue-900">1 M+</div>
                             <div className="text-xs sm:text-sm text-gray-600">Verified Tutors</div>
                         </div>
                         <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 sm:p-4 shadow-md flex-1 min-w-[100px] sm:flex-none">
-                            <div className="text-xl sm:text-2xl font-bold text-green-700">1000+</div>
+                            <div className="text-xl sm:text-2xl font-bold text-green-700">1.5 M+</div>
                             <div className="text-xs sm:text-sm text-gray-600">Happy Students</div>
                         </div>
                         <div className="bg-white/70 backdrop-blur-sm rounded-lg p-3 sm:p-4 shadow-md flex-1 min-w-[100px] sm:flex-none">
