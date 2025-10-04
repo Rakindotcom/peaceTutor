@@ -12,7 +12,6 @@ import { doc, setDoc, collection, addDoc } from 'firebase/firestore';
  */
 export const initializeFirestore = async () => {
   try {
-    console.log('Initializing Firestore collections...');
 
     // Create a sample user document to initialize the users collection
     const sampleUserId = 'sample-user-' + Date.now();
@@ -50,8 +49,7 @@ export const initializeFirestore = async () => {
       isSample: true
     });
 
-    console.log('✅ Firestore collections initialized successfully!');
-    console.log('You can now delete the sample documents if needed.');
+
 
     return {
       success: true,
@@ -59,7 +57,6 @@ export const initializeFirestore = async () => {
     };
 
   } catch (error) {
-    console.error('❌ Error initializing Firestore:', error);
     throw error;
   }
 };
@@ -69,30 +66,21 @@ export const initializeFirestore = async () => {
  */
 export const cleanupSampleData = async () => {
   try {
-    console.log('This function would clean up sample data...');
-    console.log('For now, please delete sample documents manually from Firebase Console');
+    // This function would clean up sample data
+    // For now, please delete sample documents manually from Firebase Console
 
     // Note: Deleting documents requires additional setup
     // For now, users can delete sample documents manually
 
   } catch (error) {
-    console.error('Error cleaning up sample data:', error);
     throw error;
   }
 };
 
 // Instructions for manual execution
-console.log(`
-=== FIRESTORE INITIALIZATION ===
-
-To initialize Firestore collections:
-
-1. Open browser console on your app
-2. Run: initializeFirestore()
-3. Check Firebase Console for created collections
-4. Delete sample documents if needed
-
-Alternatively, just try signing up a user - collections will be created automatically.
-
-================================
-`);
+// To initialize Firestore collections:
+// 1. Open browser console on your app
+// 2. Run: initializeFirestore()
+// 3. Check Firebase Console for created collections
+// 4. Delete sample documents if needed
+// Alternatively, just try signing up a user - collections will be created automatically.

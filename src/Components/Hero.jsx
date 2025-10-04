@@ -18,7 +18,7 @@ function Hero() {
                             Find Your Perfect Tutor in Bangladesh
                         </h1>
                         <p className="text-lg sm:text-xl lg:text-2xl text-gray-700 leading-relaxed">
-                            Connect with <span className="font-semibold text-blue-700">qualified, verified tutors</span> for personalized learning experiences. From SSC to University level - we've got you covered!
+                            Connect with <span className="font-semibold text-blue-700">qualified, verified tutors</span> for personalized learning experiences. From School to University level - we've got you covered!
                         </p>
                     </div>
 

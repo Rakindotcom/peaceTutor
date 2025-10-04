@@ -9,6 +9,8 @@ import Contact from './Pages/Contact'
 import PostTuition from './Pages/PostTuition'
 import GetTuition from './Pages/GetTuition'
 import ApplyTuition from './Pages/ApplyTuition'
+import TutorDirectory from './Pages/TutorDirectory'
+import JobBoard from './Pages/JobBoard'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
 import ScrollToTop from './Components/ScrollToTop'
@@ -44,6 +46,16 @@ const App = () => {
           <Route path="/post-tuition" element={<PostTuition />} />
           <Route path="/get-tuition" element={<GetTuition />} />
           <Route path="/apply-tuition/:id" element={<ApplyTuition />} />
+
+          {/* Public tutor directory */}
+          <Route path="/tutors" element={<TutorDirectory />} />
+
+          {/* Job board for tutors */}
+          <Route path="/job-board" element={
+            <ProtectedRoute requiredRole="tutor">
+              <JobBoard />
+            </ProtectedRoute>
+          } />
 
           {/* New unified login page */}
           <Route path="/login" element={<Login />} />

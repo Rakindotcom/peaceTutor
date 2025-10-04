@@ -5,6 +5,7 @@ import { auth } from '../firebase';
 import { showToast } from '../utils/toast';
 import { getDashboardRoute } from '../utils/auth';
 import { useAuth } from '../hooks/useAuth';
+import NotificationBell from './NotificationBell';
 
 // Utility function to get first name from full name
 const getFirstName = (fullName) => {
@@ -81,25 +82,12 @@ const ProfileDropdown = () => {
       {/* Profile Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 text-white hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-lg px-2 py-1"
+        className="flex items-center text-white hover:text-blue-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-lg p-1"
       >
         {/* Avatar */}
         <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
           {userInitials}
         </div>
-        {/* Name */}
-        <span className="text-sm font-medium hidden sm:block">
-          {displayName}
-        </span>
-        {/* Dropdown Arrow */}
-        <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
       </button>
 
       {/* Dropdown Menu */}
@@ -123,6 +111,11 @@ const ProfileDropdown = () => {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Notifications Section */}
+          <div className="border-b border-gray-100">
+            <NotificationBell />
           </div>
 
           {/* Menu Items */}

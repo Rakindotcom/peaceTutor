@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { showToast } from '../utils/toast';
 import { VALIDATION_PATTERNS, DISTRICTS, getAreas } from '../constants/formData';
 import { validateForm } from '../utils/validation';
+import { notifyAdminTutorVerification, notifyAdminTutorEdit } from '../utils/notifications';
 import FormField from './UI/FormField';
 import LoadingSpinner from './UI/LoadingSpinner';
 import TutorProfileView from './TutorProfileView';
@@ -81,7 +82,7 @@ const TutorProfileForm = () => {
   const categories = ['Bangla Medium', 'English Medium', 'English Version', 'Madrasa Medium'];
   const classes = [
     'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8',
-    'Class 9', 'Class 10', 'SSC', 'HSC - 1st Year', 'HSC- 2nd Year', 'HSC'
+    'Class 9', 'Class 10', 'HSC - 1st Year', 'HSC- 2nd Year', 'Admission', 'IELTS'
   ];
   const tutoringStyleOptions = ['One to One', 'Group Study', 'Online', 'Offline'];
   const placeOfTutoringOptions = ['Student Home', 'Tutor Home', 'Online', 'Coaching Center'];
@@ -127,7 +128,7 @@ const TutorProfileForm = () => {
         setExistingProfileData(profileData);
       }
     } catch (error) {
-      console.error('Error checking existing profile:', error);
+      // Error checking existing profile - user may not have permissions yet
     }
   };
 
@@ -192,25 +193,62 @@ const TutorProfileForm = () => {
         tutorId: tutorId || generateTutorId(),
         userId: user.uid,
         timestamp: new Date(),
-        status: 'active',
-        updatedAt: new Date()
+        status: hasExistingProfile ? 'pending_update' : 'pending_verification',
+        updatedAt: new Date(),
+        verificationStatus: hasExistingProfile ? 'pending_update' : 'pending',
+        adminNotes: '',
+        verifiedAt: null,
+        verifiedBy: null
       };
 
       if (hasExistingProfile) {
-        // Update existing profile
-        const q = query(
-          collection(db, 'tutorProfiles'),
-          where('email', '==', user.email)
-        );
-        const querySnapshot = await getDocs(q);
-        const docRef = querySnapshot.docs[0].ref;
-        await updateDoc(docRef, profileData);
-        showToast.success('Tutor profile updated successfully!');
+        // For existing profiles, create an edit request instead of direct update
+        const editRequestData = {
+          tutorId: tutorId,
+          originalProfileId: existingProfileData.id,
+          requestedChanges: formData,
+          requestedBy: user.uid,
+          requestedAt: new Date(),
+          status: 'pending',
+          adminNotes: '',
+          approvedAt: null,
+          approvedBy: null
+        };
+
+        await addDoc(collection(db, 'tutorEditRequests'), editRequestData);
+
+        // Notify admin about edit request
+        const adminQuery = query(collection(db, 'users'), where('role', '==', 'admin'));
+        const adminSnapshot = await getDocs(adminQuery);
+
+        adminSnapshot.docs.forEach(async (adminDoc) => {
+          await notifyAdminTutorEdit(
+            adminDoc.id,
+            formData.name,
+            user.email,
+            formData
+          );
+        });
+
+        showToast.success('Edit request submitted! Admin will review your changes.');
       } else {
-        // Create new profile
-        await addDoc(collection(db, 'tutorProfiles'), profileData);
+        // Create new profile for verification
+        const docRef = await addDoc(collection(db, 'tutorProfiles'), profileData);
         setTutorId(profileData.tutorId);
-        showToast.success('Tutor profile created successfully!');
+
+        // Notify admin about new tutor verification
+        const adminQuery = query(collection(db, 'users'), where('role', '==', 'admin'));
+        const adminSnapshot = await getDocs(adminQuery);
+
+        adminSnapshot.docs.forEach(async (adminDoc) => {
+          await notifyAdminTutorVerification(
+            adminDoc.id,
+            formData.name,
+            user.email
+          );
+        });
+
+        showToast.success('Profile submitted for verification! Admin will review and activate your profile.');
       }
 
       // Update user profile
@@ -224,7 +262,6 @@ const TutorProfileForm = () => {
       setShowForm(false);
       setExistingProfileData(profileData);
     } catch (error) {
-      console.error('Error saving profile:', error);
       showToast.error('Failed to save profile. Please try again.');
     } finally {
       setIsLoading(false);
@@ -270,15 +307,57 @@ const TutorProfileForm = () => {
       </div>
 
       {hasExistingProfile && !showForm && !showView && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className={`border rounded-lg p-4 ${existingProfileData?.status === 'verified'
+            ? 'bg-green-50 border-green-200'
+            : existingProfileData?.status === 'pending_verification'
+              ? 'bg-yellow-50 border-yellow-200'
+              : existingProfileData?.status === 'pending_update'
+                ? 'bg-blue-50 border-blue-200'
+                : 'bg-red-50 border-red-200'
+          }`}>
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg className={`w-5 h-5 mr-2 ${existingProfileData?.status === 'verified'
+                ? 'text-green-600'
+                : existingProfileData?.status === 'pending_verification'
+                  ? 'text-yellow-600'
+                  : existingProfileData?.status === 'pending_update'
+                    ? 'text-blue-600'
+                    : 'text-red-600'
+              }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {existingProfileData?.status === 'verified' ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              ) : existingProfileData?.status === 'pending_verification' || existingProfileData?.status === 'pending_update' ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              )}
             </svg>
             <div>
-              <p className="text-green-800 font-medium">Profile Active</p>
-              <p className="text-green-700 text-sm">
-                Your tutor profile is active and visible to students looking for tutors.
+              <p className={`font-medium ${existingProfileData?.status === 'verified'
+                  ? 'text-green-800'
+                  : existingProfileData?.status === 'pending_verification'
+                    ? 'text-yellow-800'
+                    : existingProfileData?.status === 'pending_update'
+                      ? 'text-blue-800'
+                      : 'text-red-800'
+                }`}>
+                {existingProfileData?.status === 'verified' && 'Profile Active'}
+                {existingProfileData?.status === 'pending_verification' && 'Pending Verification'}
+                {existingProfileData?.status === 'pending_update' && 'Update Pending'}
+                {existingProfileData?.status === 'rejected' && 'Profile Rejected'}
+              </p>
+              <p className={`text-sm ${existingProfileData?.status === 'verified'
+                  ? 'text-green-700'
+                  : existingProfileData?.status === 'pending_verification'
+                    ? 'text-yellow-700'
+                    : existingProfileData?.status === 'pending_update'
+                      ? 'text-blue-700'
+                      : 'text-red-700'
+                }`}>
+                {existingProfileData?.status === 'verified' && 'Your tutor profile is active and visible to students.'}
+                {existingProfileData?.status === 'pending_verification' && 'Your profile is under review by admin. You will be notified once verified.'}
+                {existingProfileData?.status === 'pending_update' && 'Your edit request is pending admin approval.'}
+                {existingProfileData?.status === 'rejected' && 'Your profile was rejected. Please contact admin for details.'}
               </p>
             </div>
           </div>

@@ -1,100 +1,117 @@
 # Firestore Setup Guide
 
-## Step 1: Apply Security Rules
+## Database Rules
 
-1. Go to [Firebase Console](https://console.firebase.google.com)
-2. Select your project
-3. Navigate to **Firestore Database** → **Rules**
-4. Replace the existing rules with this content:
+Replace your Firestore rules with the following to ensure proper security:
 
 ```javascript
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Users collection - Allow user creation and self-access
+    // Users collection - users can read/write their own data, admins can read all
     match /users/{userId} {
-      // Allow users to create their own document during signup
-      allow create: if request.auth != null && 
-        request.auth.uid == userId &&
-        request.resource.data.uid == request.auth.uid;
-      
-      // Allow users to read and update their own document
-      allow read, update: if request.auth != null && request.auth.uid == userId;
-      
-      // Allow admins to read all user documents
+      allow read, write: if request.auth != null && request.auth.uid == userId;
       allow read: if request.auth != null && 
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    // Public collections - allow public writes, authenticated reads
-    match /hireRequests/{document} {
-      allow read: if request.auth != null;
-      allow write: if true;
+    // Tutor profiles - public read for verified tutors, write only by owner or admin
+    match /tutorProfiles/{profileId} {
+      allow read: if resource.data.status == 'verified';
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    match /tutorApplications/{document} {
-      allow read: if request.auth != null;
-      allow write: if true;
+    // Tuition posts - public read for active posts, write by guardians and admins
+    match /tuitionPosts/{postId} {
+      allow read: if resource.data.status == 'active';
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.guardianId;
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    match /contactMessages/{document} {
-      allow read: if request.auth != null;
-      allow write: if true;
+    // Tutor requests - read/write by involved parties and admin
+    match /tutorRequests/{requestId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == resource.data.guardianId || 
+         request.auth.uid == resource.data.tutorId);
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    match /tuitions/{document} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+    // Tuition applications - read/write by involved parties and admin
+    match /tuitionApplications/{applicationId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == resource.data.guardianId || 
+         request.auth.uid == resource.data.tutorId);
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Notifications - read/write by owner only
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Tutor edit requests - admin only
+    match /tutorEditRequests/{requestId} {
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow read: if request.auth != null && request.auth.uid == resource.data.requestedBy;
     }
   }
 }
 ```
 
-5. Click **Publish**
+## Required Collections
 
-## Step 2: Test Rules (Optional)
+The following collections will be created automatically when data is first added:
 
-Use the Firebase Console Rules Playground to test:
-1. Go to **Rules** tab in Firestore
-2. Click **Rules Playground**
-3. Test scenarios:
-   - User creation: `users/test-uid` with auth uid `test-uid`
-   - User read: `users/test-uid` with auth uid `test-uid`
+1. **users** - User profiles and roles
+2. **tutorProfiles** - Tutor profile information
+3. **tuitionPosts** - Job postings from guardians
+4. **tutorRequests** - Direct tutor requests from guardians
+5. **tuitionApplications** - Tutor applications for jobs
+6. **notifications** - Real-time notifications
+7. **tutorEditRequests** - Tutor profile edit requests
 
-## Step 3: Create First User
+## Index Requirements
 
-After applying rules, try creating a user account through your app. The users collection will be created automatically.
+If you encounter index errors, Firestore will provide direct links to create the required indexes. The most common ones needed are:
 
-## Alternative: Temporary Permissive Rules (Development Only)
+### For tutorProfiles collection:
+- **status** (Ascending) + **city** (Ascending)
+- **status** (Ascending) + **location** (Ascending)
 
-If you're still having issues, temporarily use these permissive rules for development:
+### For tuitionPosts collection:
+- **status** (Ascending) + **createdAt** (Descending)
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}
-```
+### For notifications collection:
+- **userId** (Ascending) + **isRead** (Ascending)
 
-**⚠️ IMPORTANT**: Replace with proper rules before going to production!
+## Initial Setup Steps
 
-## Step 4: Verify Setup
+1. **Deploy Firestore Rules**: Copy the rules above to your Firestore Rules tab
+2. **Create Admin User**: Use the admin setup component or manually create in Firestore Console
+3. **Test Collections**: Try creating a tutor profile to initialize collections
+4. **Create Indexes**: Click the provided links when index errors occur
 
-1. Try signing up a new user
-2. Check Firestore Database for the `users` collection
-3. Verify the user document was created with correct structure
+## Security Features
+
+- **Guardian phone numbers**: Only visible to admins
+- **Role-based access**: Different permissions for tutors, guardians, and admins
+- **Profile verification**: Tutors must be verified by admin before appearing publicly
+- **Edit restrictions**: Tutors cannot directly edit profiles after creation
 
 ## Troubleshooting
 
-If you still get permission errors:
-1. Check browser console for specific error messages
-2. Verify Firebase project configuration
-3. Ensure you're using the correct Firebase project
-4. Try clearing browser cache and localStorage
+- **Permission Denied**: Check if user has correct role in users collection
+- **Index Required**: Click the provided link to create the composite index
+- **Data Not Showing**: Verify the status field matches the query (e.g., 'verified', 'active')

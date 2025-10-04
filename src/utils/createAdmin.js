@@ -21,7 +21,6 @@ import { doc, setDoc } from 'firebase/firestore';
  */
 export const createAdminUser = async (email, password, fullName, phone = '') => {
   try {
-    console.log('Creating admin user...');
 
     // Create Firebase Auth user
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -45,9 +44,7 @@ export const createAdminUser = async (email, password, fullName, phone = '') => 
       }
     });
 
-    console.log('Admin user created successfully!');
-    console.log('Email:', email);
-    console.log('UID:', user.uid);
+
 
     return {
       success: true,
@@ -56,14 +53,13 @@ export const createAdminUser = async (email, password, fullName, phone = '') => 
     };
 
   } catch (error) {
-    console.error('Error creating admin user:', error);
     throw error;
   }
 };
 
 /**
  * Example usage (uncomment and modify as needed):
- * 
+ *
  * // To create an admin user, uncomment and run this:
  * createAdminUser(
  *   'admin@peacetutorbd.com',
@@ -71,42 +67,16 @@ export const createAdminUser = async (email, password, fullName, phone = '') => 
  *   'System Administrator',
  *   '01700000000'
  * ).then(() => {
- *   console.log('Admin creation completed');
+ *   // Admin creation completed
  * }).catch((error) => {
- *   console.error('Failed to create admin:', error);
+ *   // Failed to create admin
  * });
  */
 
 // Instructions for manual admin creation:
-console.log(`
-=== ADMIN USER CREATION INSTRUCTIONS ===
-
-To create an admin user manually:
-
-1. Go to Firebase Console > Firestore Database
-2. Create a new collection called "users" (if it doesn't exist)
-3. Add a new document with the following structure:
-
-Document ID: [Use the Firebase Auth UID]
-{
-  "uid": "[Firebase Auth UID]",
-  "email": "admin@peacetutorbd.com",
-  "fullName": "System Administrator",
-  "phone": "01700000000",
-  "role": "admin",
-  "createdAt": "[Current ISO date string]",
-  "isActive": true,
-  "createdBy": "manual",
-  "permissions": {
-    "canManageUsers": true,
-    "canViewReports": true,
-    "canManageContent": true,
-    "canAccessAnalytics": true
-  }
-}
-
-4. Create the corresponding Firebase Auth user with the same email
-5. Use the Auth UID as the document ID in Firestore
-
-===========================================
-`);
+// To create an admin user manually:
+// 1. Go to Firebase Console > Firestore Database
+// 2. Create a new collection called "users" (if it doesn't exist)
+// 3. Add a new document with the admin user structure
+// 4. Create the corresponding Firebase Auth user with the same email
+// 5. Use the Auth UID as the document ID in Firestore

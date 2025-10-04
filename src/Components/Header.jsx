@@ -6,6 +6,7 @@ import { showToast } from '../utils/toast';
 import { getDashboardRoute } from '../utils/auth';
 import { useAuth } from '../hooks/useAuth';
 import ProfileDropdown from './ProfileDropdown';
+import QuickActionsDropdown from './QuickActionsDropdown';
 
 // Utility function to get first name from full name
 const getFirstName = (fullName) => {
@@ -71,27 +72,32 @@ function Header() {
               Home
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-300 group-hover:w-full transition-all duration-300"></span>
             </Link>
+            <Link to="/tutors" className="text-white hover:text-blue-300 transition-colors font-medium relative group text-sm xl:text-base">
+              Find Tutors
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-300 group-hover:w-full transition-all duration-300"></span>
+            </Link>
             <Link to="/get-tuition" className="text-white hover:text-blue-300 transition-colors font-medium relative group text-sm xl:text-base">
               Get Tuition
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-300 group-hover:w-full transition-all duration-300"></span>
             </Link>
-
+            {userData?.role === 'tutor' && (
+              <Link to="/job-board" className="text-white hover:text-blue-300 transition-colors font-medium relative group text-sm xl:text-base">
+                Job Board
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-300 group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            )}
             <Link to="/contact" className="text-white hover:text-blue-300 transition-colors font-medium relative group text-sm xl:text-base">
               Contact
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-300 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link
-              to="/hire"
-              className="text-white hover:text-blue-300 transition-colors font-medium relative group text-sm xl:text-base"
-            >
-              Hire Tutor
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-300 group-hover:w-full transition-all duration-300"></span>
             </Link>
 
             {!isLoading && (
               <>
                 {user ? (
-                  <ProfileDropdown />
+                  <div className="flex items-center space-x-2">
+                    <QuickActionsDropdown />
+                    <ProfileDropdown />
+                  </div>
                 ) : (
                   <Link
                     to="/login"
@@ -135,22 +141,22 @@ function Header() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="lg:hidden bg-gradient-to-b from-blue-800 to-indigo-800 px-4 py-6 space-y-2 border-t border-blue-700 animate-slide-up">
-            <Link to="/" className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium" onClick={() => setIsMenuOpen(false)}>
-              <span>🏠</span>
-              <span className="ml-3">Home</span>
+            <Link to="/" className="text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium block" onClick={() => setIsMenuOpen(false)}>
+              Home
             </Link>
-            <Link to="/get-tuition" className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium" onClick={() => setIsMenuOpen(false)}>
-              <span>📚</span>
-              <span className="ml-3">Get Tuition</span>
+            <Link to="/tutors" className="text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium block" onClick={() => setIsMenuOpen(false)}>
+              Find Tutors
             </Link>
-
-            <Link to="/contact" className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium" onClick={() => setIsMenuOpen(false)}>
-              <span>📞</span>
-              <span className="ml-3">Contact Us</span>
+            <Link to="/get-tuition" className="text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium block" onClick={() => setIsMenuOpen(false)}>
+              Get Tuition
             </Link>
-            <Link to="/hire" className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium" onClick={() => setIsMenuOpen(false)}>
-              <span>👨‍🏫</span>
-              <span className="ml-3">Hire Tutor</span>
+            {userData?.role === 'tutor' && (
+              <Link to="/job-board" className="text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium block" onClick={() => setIsMenuOpen(false)}>
+                Job Board
+              </Link>
+            )}
+            <Link to="/contact" className="text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium block" onClick={() => setIsMenuOpen(false)}>
+              Contact Us
             </Link>
 
             {!isLoading && (
@@ -160,10 +166,9 @@ function Header() {
                     <Link
                       to="/profile"
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium"
+                      className="text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700/50 transition-all font-medium block"
                     >
-                      <span>👤</span>
-                      <span className="ml-3">Profile</span>
+                      Profile
                     </Link>
                     <div className="px-4 py-2 border-t border-blue-700 mt-2 pt-4">
                       <div className="flex items-center space-x-3 mb-3">
